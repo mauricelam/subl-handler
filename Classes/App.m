@@ -17,39 +17,31 @@ NSString *defaultPath = @"/Applications/Sublime Text 2.app/Contents/SharedSuppor
 -(void)handleGetURLEvent:(NSAppleEventDescriptor *)event withReplyEvent:(NSAppleEventDescriptor *)replyEvent {
     if (nil == path) path = defaultPath;
 
-    // txmt://open/?url=file://~/.bash_profile&line=11&column=2
     NSURL *url = [NSURL URLWithString:[[event paramDescriptorForKeyword:keyDirectObject] stringValue]];
-
+    NSLog(@"URL! %@", url);
+    
     if (url && [[url host] isEqualToString:@"open"]) {
         NSDictionary *params = [url dictionaryByDecodingQueryString];
-        NSString* file  = [params objectForKey:@"file"];
+        NSString* fileURI  = [params objectForKey:@"url"];
+        
+        if (fileURI) {
+            NSString *fileName = [fileURI componentsSeparatedByString:@"://"][1];
 
-        if (file) {
-            NSString *line = [params objectForKey:@"line"];
+            NSTask *task = [[NSTask alloc] init];
+            [task setLaunchPath:path];
+            [task setArguments:@[fileName]];
+            [task launch];
+            [task release];
 
-            if (file) {
-                NSTask *task = [[NSTask alloc] init];
-                [task setLaunchPath:path];
-                NSString* filePath = [NSString stringWithFormat:@"%@", file, [line integerValue]];
-                NSString* command = [NSString stringWithFormat:@"show_overlay {\"overlay\": \"goto\", \"text\":\"%@\"}", filePath];
-                [task setArguments:[NSArray arrayWithObjects:@"--command", command , nil]];
-                [task launch];
-                [task release];
-                NSWorkspace *sharedWorkspace = [NSWorkspace sharedWorkspace];
-                NSString *appPath = [sharedWorkspace fullPathForApplication:@"Sublime Text 2"];
-                NSString *identifier = [[NSBundle bundleWithPath:appPath] bundleIdentifier];
-                NSArray *selectedApps =
-                [NSRunningApplication runningApplicationsWithBundleIdentifier:identifier];
-                NSRunningApplication *runningApplcation = (NSRunningApplication*)[selectedApps objectAtIndex:0];
-                [runningApplcation activateWithOptions: NSApplicationActivateAllWindows];
-                [runningApplcation setCollectionBehavior: NSWindowCollectionBehaviorMoveToActiveSpace];
-            }
+            NSWorkspace *sharedWorkspace = [NSWorkspace sharedWorkspace];
+            NSString *appPath = [sharedWorkspace fullPathForApplication:@"Sublime Text 2"];
+            NSString *identifier = [[NSBundle bundleWithPath:appPath] bundleIdentifier];
+            NSArray *selectedApps =
+            [NSRunningApplication runningApplicationsWithBundleIdentifier:identifier];
+            NSRunningApplication *runningApplcation = (NSRunningApplication*)[selectedApps objectAtIndex:0];
+            [runningApplcation activateWithOptions: NSApplicationActivateAllWindows];
         }
     }
-
-//    if (![prefPanel isVisible]) {
-//        [NSApp terminate:self];
-//    }
 }
 
 -(IBAction)showPrefPanel:(id)sender {
