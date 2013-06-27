@@ -48,6 +48,10 @@
         [task launch];
         NSWorkspace *sharedWorkspace = [NSWorkspace sharedWorkspace];
         NSString *appPath = [sharedWorkspace fullPathForApplication:@"Sublime Text 2"];
+        NSFileManager *fileManager = [NSFileManager new];
+        if (![fileManager isReadableFileAtPath:appPath]) {
+          appPath = [sharedWorkspace fullPathForApplication:@"Sublime Text"];
+        }
         NSString *identifier = [[NSBundle bundleWithPath:appPath] bundleIdentifier];
         NSArray *selectedApps = [NSRunningApplication runningApplicationsWithBundleIdentifier:identifier];
         NSRunningApplication *runningApp = (NSRunningApplication*)[selectedApps objectAtIndex:0];
