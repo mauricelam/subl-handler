@@ -22,14 +22,16 @@ NSString *defaultPath = @"/Applications/Sublime Text 2.app/Contents/SharedSuppor
     
     if (url && [[url host] isEqualToString:@"open"]) {
         NSDictionary *params = [url dictionaryByDecodingQueryString];
-        NSString* fileURI  = [params objectForKey:@"url"];
+        NSString* fileURI = [params objectForKey:@"url"];
+        NSString* line = [params objectForKey:@"line"];
         
         if (fileURI) {
             NSString *fileName = [fileURI componentsSeparatedByString:@"://"][1];
 
             NSTask *task = [[NSTask alloc] init];
             [task setLaunchPath:path];
-            [task setArguments:@[fileName]];
+            NSString *fileWithLine = [@[fileName, line] componentsJoinedByString:@":"];
+            [task setArguments:@[fileWithLine]];
             [task launch];
             [task release];
 
