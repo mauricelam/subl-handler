@@ -7,7 +7,7 @@
 	<key>CFBundleExecutable</key>
 	<string>${EXECUTABLE_NAME}</string>
 	<key>CFBundleIconFile</key>
-	<string>Sublime Text</string>
+	<string>sublime</string>
 	<key>CFBundleIdentifier</key>
 	<string>org.asuth.sublhandler</string>
 	<key>CFBundleInfoDictionaryVersion</key>

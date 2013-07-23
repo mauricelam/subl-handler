@@ -3,7 +3,6 @@
 #import "NSURL+L0URLParsing.h"
 
 #define kDefaultsPathKey @"path"
-#define kDefaultPath @"/Applications/Sublime Text 2.app/Contents/SharedSupport/bin/subl"
 
 @implementation App
 
@@ -15,8 +14,23 @@
 
 - (void)applicationDidFinishLaunching:(NSNotification *)notification
 {
-  [NSUserDefaults.standardUserDefaults registerDefaults:@{kDefaultsPathKey:kDefaultPath}];
-  // TODO Show preferences when not opened from protocol;
+    NSUserDefaults* defaults = [NSUserDefaults standardUserDefaults];
+    NSString* path = [defaults stringForKey:@"setPath"];
+    if (path != nil) {
+        NSLog(@"set path: %@", path);
+        [defaults setObject:path forKey:kDefaultsPathKey];
+        [defaults synchronize];
+        [NSApp terminate:self];
+    } else if ([defaults stringForKey:kDefaultsPathKey] == nil) {
+        [NSAlert
+         alertWithMessageText:@"You need to set the path using -setPath flag"
+         defaultButton:@"OK" alternateButton:nil otherButton:nil informativeTextWithFormat:nil];
+    }
+}
+
+- (BOOL)applicationShouldTerminateAfterLastWindowClosed
+{
+    return YES;
 }
 
 -(void)awakeFromNib
@@ -62,30 +76,6 @@
   if (!prefPanel.isVisible) {
     [NSApp terminate:self];
   }
-}
-
--(IBAction)showPrefPanel:(id)sender
-{
-  [textField setStringValue:self.sublimePath];
-  [prefPanel makeKeyAndOrderFront:nil];
-}
-
--(IBAction)applyChange:(id)sender
-{
-  NSString *path = [textField stringValue];
-  if (path) {
-    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-    [defaults setObject:path forKey:kDefaultsPathKey];
-  }
-  
-  [prefPanel orderOut:nil];
-}
-
-- (IBAction)restoreDefaultPath:(id)sender
-{
-  NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-  [defaults setObject:kDefaultPath forKey:kDefaultsPathKey];
-  textField.stringValue = kDefaultPath;
 }
 
 - (NSString *)sublimePath
