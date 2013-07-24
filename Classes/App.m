@@ -22,9 +22,11 @@
         [defaults synchronize];
         [NSApp terminate:self];
     } else if ([defaults stringForKey:kDefaultsPathKey] == nil) {
-        [NSAlert
+        NSAlert* alert = [NSAlert
          alertWithMessageText:@"You need to set the path using -setPath flag"
-         defaultButton:@"OK" alternateButton:nil otherButton:nil informativeTextWithFormat:nil];
+         defaultButton:@"OK" alternateButton:nil otherButton:nil informativeTextWithFormat:@""];
+        [alert runModal];
+        [NSApp terminate:self];
     }
 }
 
@@ -44,6 +46,7 @@
  */
 -(void)handleGetURLEvent:(NSAppleEventDescriptor *)event withReplyEvent:(NSAppleEventDescriptor *)replyEvent
 {
+    NSLog(@"Handle URL Event");
   NSURL *url = [NSURL URLWithString:[[event paramDescriptorForKeyword:keyDirectObject] stringValue]];
   
   if ([url.host isEqualToString:@"open"]) {
